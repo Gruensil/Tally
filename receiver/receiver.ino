@@ -7,7 +7,7 @@ const int RED_LED = 2;
 const int GREEN_LED = 3;
 const int BLUE_LED = 4;
 
-const int CAM_ID = 1;
+const int CAM_ID = 240;
 
 
 
@@ -15,6 +15,7 @@ SoftwareSerial HC12(HC12TxdPin, HC12RxdPin);
 
 void setup() {
     HC12.begin(9600);
+    Serial.begin(9600);
     pinMode(RED_LED, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
     pinMode(BLUE_LED, OUTPUT);
@@ -30,39 +31,40 @@ void setup() {
     
 }
 
-byte flipByte(byte c)
-     {
-       c = ((c>>1)&0x55)|((c<<1)&0xAA);
-       c = ((c>>2)&0x33)|((c<<2)&0xCC);
-       c = (c>>4) | (c<<4) ;
-
-       return c;
-     }
-
 void loop() {
     if(HC12.available() > 0)
     {
-        int input = HC12.read();
-//        int input = flipByte(wronginput);
-        int previewTally = input & 0b0000111;
-        int programTally = (input & 0b0111000) >> 3;
+        byte pgm = HC12.read();
+        delay(100);
+        byte prv = HC12.read();
+        delay(100);
+        Serial.println(pgm);
+        Serial.println(prv);
+        
+//        byte val = HC12.read();
+//        Serial.println(val);
+//        for(int i = 0; i<8 ; i++)
+//        {
+//          bool b = val & 0x80; 
+//          Serial.print(b);
+//          val = val << 1;
+//        }
 
-        for(int i = 0; i < input; ++i){
-          digitalWrite(RED_LED, HIGH);
-          delay(100);
-          digitalWrite(RED_LED, LOW);
-          delay(100);
+//        Serial.print("\n");
+        
+//        int previewTally = input & 0b0000111;
+//        int programTally = (input & 0b0111000) >> 3;
+
+
+        if(pgm == CAM_ID){
+            digitalWrite(RED_LED, HIGH);
+        }else{
+            digitalWrite(RED_LED, LOW);
         }
-
-//        if(programTally == CAM_ID){
-//            digitalWrite(RED_LED, HIGH);
-//        }else{
-//            digitalWrite(RED_LED, LOW);
-//        }
-//        if(previewTally == CAM_ID){
-//            digitalWrite(GREEN_LED, HIGH);
-//        }else{
-//            digitalWrite(GREEN_LED, LOW);
-//        }
+        if(prv == CAM_ID){
+            digitalWrite(GREEN_LED, HIGH);
+        }else{
+            digitalWrite(GREEN_LED, LOW);
+        }
     }
 }
