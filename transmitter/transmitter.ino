@@ -1,54 +1,50 @@
 
 #include <SoftwareSerial.h>
-#include <SkaarhojPgmspace.h>
-#include <ATEMbase.h>
-#include <ATEMstd.h>
 
 
-const byte HC12RxdPin = 4; // "RXD" Pin on HC12
-const byte HC12TxdPin = 5; // "TXD" Pin on HC12
-const int switch_pin = 7;
-const int led_pin = 10;
-const int cam_number = 4;
-
-ATEMstd AtemSwitcher;
-
-IPAddress switcherIp(192,168,0,125);
+const byte HC12RxdPin = A3; // "RXD" Pin on HC12
+const byte HC12TxdPin = A2; // "TXD" Pin on HC12
+const int RED_LED = 2;
+const int GREEN_LED = 3;
+const int BLUE_LED = 4;
+bool ping;
 
 SoftwareSerial HC12(HC12TxdPin, HC12RxdPin);
 
 void setup() {
-  HC12.begin(9600);
-//
-//  AtemSwitcher.begin(switcherIp);
-//  AtemSwitcher.serialOutput(0x80);
-//  AtemSwitcher.connect();
+    HC12.begin(9600);
+    pinMode(RED_LED, OUTPUT);
+    pinMode(GREEN_LED, OUTPUT);
+    pinMode(BLUE_LED, OUTPUT);
+
+    int clean = 0;
+    HC12.write(clean);
+
+    ping = true;
 }
 
-void loop() {
-  AtemSwitcher.runLoop();
+void loop() {  
+  int programTally;
+  int previewTally;
   
-  int programTally = 3;
-  int previewTally = 1;
-  
-//  int programTally = AtemSwitcher.getProgramInput();
-//  int previewTally = AtemSwitcher.getPreviewInput();
-  
-  if(digitalRead(switch_pin) == HIGH){
-    programTally = 3;
+  if (ping){
+      programTally = 0;
+      previewTally = 1;
   }
-  if(digitalRead(switch_pin) == LOW){
-    programTally = 2;
+  else{
+      programTally = 1;
+      previewTally = 0;
   }
-  delay(50);
+  
+  ping =  not ping;
 
-  if(programTally > cam_number || previewTally > cam_number){
-    Serial.print("Cam number not valid.");
-    return;
-  }
   int transmission = programTally;
   transmission = transmission << 3;
   transmission = transmission | previewTally;
   HC12.write(transmission);
-  delay(5000);
+  
+  digitalWrite(BLUE_LED, HIGH);
+  delay(500);
+  digitalWrite(BLUE_LED, LOW);
+  delay(500);
 }
