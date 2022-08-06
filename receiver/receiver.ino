@@ -9,14 +9,14 @@ const int RED_LED = 2;
 const int GREEN_LED = 3;
 const int BLUE_LED = 4;
 
-const int CAM_ID = 1;
+const int CAM_ID = 2;
 
-int x;
+String readStr;
 
 SoftwareSerial HC12(HC12TxdPin, HC12RxdPin);
 
 void setup() {
-  HC12.begin(9600);
+  HC12.begin(19200);
   Serial.begin(9600);
   pinMode(RED_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
@@ -32,58 +32,27 @@ void setup() {
   delay(1000);
   Serial.println("I am listening...");
 
-  pinMode(HC12SetPin, OUTPUT);
-  digitalWrite(HC12SetPin, HIGH);
-  delay(80);
+  HC12.flush();
 
 }
 
 void loop() {
   while (!HC12.available());
 
-  Serial.println("I received something!");
-  
-  digitalWrite(GREEN_LED, HIGH);
-  delay(30);
-  digitalWrite(GREEN_LED, LOW);
-  delay(30);
+  int input = HC12.read();
+  delay(10);
+  Serial.println(input);
 
-  x = HC12.parseInt();
-  if (x == CAM_ID)
-  {
-    digitalWrite(RED_LED, HIGH);
+  int prv = input & 0b00000111;
+  int pgm = (input & 0b00111000) >> 3;
+  if(pgm == CAM_ID){
+     digitalWrite(RED_LED, HIGH);
+  }else{
+      digitalWrite(RED_LED, LOW);
   }
-  else {
-    digitalWrite(RED_LED, LOW);
+  if(prv == CAM_ID){
+      digitalWrite(GREEN_LED, HIGH);
+  }else{
+      digitalWrite(GREEN_LED, LOW);
   }
-  Serial.println(x);
-
-  delay(100);
-
-
-  //        byte val = HC12.read();
-  //        Serial.println(val);
-  //        for(int i = 0; i<8 ; i++)
-  //        {
-  //          bool b = val & 0x80;
-  //          Serial.print(b);
-  //          val = val << 1;
-  //        }
-
-  //        Serial.print("\n");
-
-  //        int previewTally = input & 0b0000111;
-  //        int programTally = (input & 0b0111000) >> 3;
-
-
-  //        if(pgm == CAM_ID){
-  //            digitalWrite(RED_LED, HIGH);
-  //        }else{
-  //            digitalWrite(RED_LED, LOW);
-  //        }
-  //        if(prv == CAM_ID){
-  //            digitalWrite(GREEN_LED, HIGH);
-  //        }else{
-  //            digitalWrite(GREEN_LED, LOW);
-  //        }
 }
