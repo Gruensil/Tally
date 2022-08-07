@@ -43,14 +43,15 @@ void loop() {
   delay(10);
   Serial.println(input);
 
-  int prv = input & 0b00000111;
-  int pgm = (input & 0b00111000) >> 3;
-  if(pgm == CAM_ID){
+  int pgm = input & (0b00000001 << ((CAM_ID-1) * 2));
+  int prv = input & (0b00000010 << ((CAM_ID-1) * 2));
+
+  if(pgm != 0){
      digitalWrite(RED_LED, HIGH);
   }else{
       digitalWrite(RED_LED, LOW);
   }
-  if(prv == CAM_ID){
+  if(prv != 0){
       digitalWrite(GREEN_LED, HIGH);
   }else{
       digitalWrite(GREEN_LED, LOW);

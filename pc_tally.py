@@ -12,7 +12,7 @@ import serial.tools.list_ports
 
 AtemIp = '192.168.80.9'
 ArduinoSerial = 'A50285BI'
-NumInputs = 3
+NumInputs = 4
 
 def find_arduino(serial_number):
     for pinfo in serial.tools.list_ports.comports():
@@ -39,25 +39,27 @@ switcher = PyATEMMax.ATEMMax()
 switcher.connect(AtemIp)
 switcher.waitForConnection()
 
-
 print(f"[{time.ctime()}] Watching for tally changes...")
 while True:
-    pgm = 0
-    prv = 0
+    # pgm = [0,1,0,0]
+    # prv = [0,1,0,0]
+    pgm = [0] * NumInputs
+    prv = [0] * NumInputs
 
-    for inputId in range(1, NumInputs+1):
-        tally = switcher.tally.bySource.flags[inputId]
+    for inputId in range(NumInputs):
+        tally = switcher.tally.bySource.flags[inputId+1]
         if tally.program:
-            pgm = inputId
+            pgm[inputId] = inputId
         if tally.preview:
-            prv = inputId
+            prv[inputId] = inputId
 
-    transmission = pgm << 3
-    transmission = transmission | prv
+    transmission = 0
+    for inputId in range(NumInputs):
+        transmission = transmission | (pgm[inputId] << inputId*2)
+        transmission = transmission | (prv[inputId] << (inputId*2 + 1))
 
     result = write_read(str(transmission))
-    print(result)
-    time.sleep(1)
+    print(int(result[0:2]))
 
     time.sleep(0.01)     # Avoid hogging processor...
 
