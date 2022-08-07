@@ -52,7 +52,7 @@ void loop() {
       digitalWrite(RED_LED, LOW);
   }
   if(prv != 0){
-      digitalWrite(GREEN_LED, HIGH);
+      analogWrite(GREEN_LED, 20);
   }else{
       digitalWrite(GREEN_LED, LOW);
   }
