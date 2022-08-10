@@ -49,9 +49,9 @@ while True:
     for inputId in range(NumInputs):
         tally = switcher.tally.bySource.flags[inputId+1]
         if tally.program:
-            pgm[inputId] = inputId
+            pgm[inputId] = 1
         if tally.preview:
-            prv[inputId] = inputId
+            prv[inputId] = 1
 
     transmission = 0
     for inputId in range(NumInputs):
